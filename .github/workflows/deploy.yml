@@ -1,0 +1,33 @@
+name: Release NodeJS app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: summerhkvb/express-app:latest
+
+      - name: Deploy with Watchtower
+        uses: containrrr/watchtower-action@v2
+        with:
+          image: summerhkvb/express-app:latest
+          run-on-start: true
